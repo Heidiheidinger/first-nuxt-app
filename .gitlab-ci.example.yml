@@ -1,0 +1,65 @@
+---
+
+cache:
+  paths:
+    - node_modules/
+
+stages:
+  - build
+  - deploy
+
+build-staging:
+  stage: build
+  before_script:
+    - export PATH="/usr/bin/npm:$PATH"
+  script:
+    - rm -rf /home/App/dist/build-dist-staging
+    - npm install
+    - npm run generate-staging
+  only:
+  - staging
+  tags:
+  - test-app
+
+deploy_staging:
+  stage: deploy
+  before_script:
+    - export PATH="/usr/bin/ssh:$PATH"
+  script:
+    - rsync -avz --progress --recursive --delete /home/App/dist/build-dist-staging/ root@<ip-address>:/home/docker-nginx-nuxtjs-web-server/public-html/app-nuxt-staging
+  after_script:
+    - ssh root@<ip-address> 'chown -R root:root /home/docker-nginx-nuxtjs-web-server/public-html/app-nuxt-staging'
+    - ssh root@<ip-address> 'chmod 755 $(find /home/docker-nginx-nuxtjs-web-server/public-html/app-nuxt-staging -type d)'
+    - ssh root@<ip-address> 'chmod 644 $(find /home/docker-nginx-nuxtjs-web-server/public-html/app-nuxt-staging -type f)'
+  only:
+  - staging
+  tags:
+  - test-app
+
+build-production:
+  stage: build
+  before_script:
+    - export PATH="/usr/bin/npm:$PATH"
+  script:
+    - rm -rf /home/App/dist/build-dist-production
+    - npm install
+    - npm run generate-production
+  only:
+  - production
+  tags:
+  - test-app
+
+deploy_production:
+  stage: deploy
+  before_script:
+    - export PATH="/usr/bin/ssh:$PATH"
+  script:
+    - rsync -avz --progress --recursive --delete /home/App/dist/build-dist-production/ root@<ip-address>:/home/docker-nginx-nuxtjs-web-server/public-html/app-nuxt-production
+  after_script:
+    - ssh root@<ip-address> 'chown -R root:root /home/docker-nginx-nuxtjs-web-server/public-html/app-nuxt-production'
+    - ssh root@<ip-address> 'chmod 755 $(find /home/docker-nginx-nuxtjs-web-server/public-html/app-nuxt-production -type d)'
+    - ssh root@<ip-address> 'chmod 644 $(find /home/docker-nginx-nuxtjs-web-server/public-html/app-nuxt-production -type f)'
+  only:
+  - production
+  tags:
+  - test-app
