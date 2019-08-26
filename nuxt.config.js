@@ -24,7 +24,7 @@ export default {
   /*
   ** Customize the progress-bar color
   */
-  loading: { color: '#fff' },
+  loading: { color: '#42b883' },
   /*
   ** Global CSS
   */
@@ -82,7 +82,7 @@ export default {
       enabled: true
     },
     debug: {
-      enabled: true,
+      enabled: process.env.NODE_ENV !== 'production',
       sendHitTask: process.env.NODE_ENV === 'production'
     }
   },
